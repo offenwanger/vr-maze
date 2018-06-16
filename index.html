@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <title></title>
+        <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
+        <script src='globals.js'></script>
+        <script src='maze.js'></script>
+        <script src='game.js'></script>
+        <script src='main.js'></script>
+    </head>
+    <body>
+        <a-scene mainframe>
+            <a-entity camera look-controls>
+                <a-entity id="cursor" cursor="fuse: false;" material="color: black; shader: flat;"
+                        position="0 0 -1"
+                        geometry="primitive: ring; radiusInner: 0.001; radiusOuter: .005;  "></a-entity>
+            </a-entity>
+        </a-scene>
+    </body>
+    <!-- <pre id="out"></pre>
+    <script type="text/javascript">
+        document.getElementById('out').innerHTML= new Maze(8, 11).toString(); 
+    </script> -->
+</html>
