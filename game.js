@@ -5,9 +5,6 @@ class Game {
     }
 
     moveTo(x, y) {
-        if(debug) {
-            console.log("clicked " + x + "," + y);
-        }
         if(!this.isMoveValid(x, y)){
             throw new Error("Invalid move!");
             return;

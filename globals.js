@@ -1,5 +1,6 @@
 let game;
 let currentClickTarget;
+let wallColor;
 
 let debug = true;
 
