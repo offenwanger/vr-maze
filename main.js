@@ -68,6 +68,7 @@ function makeMove(x, y) {
         clearMaze();
         game = new Game();
         drawMaze();
+        wallColor = '#'+Math.random().toString(16).substr(-6);
         //Allow the floor tile data to propogate before updating the maze.
         Promise.resolve().then(()=>{
             updateMaze(game.currentLocation.x, game.currentLocation.y);
