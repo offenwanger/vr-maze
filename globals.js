@@ -1,4 +1,8 @@
 let game;
 let currentClickTarget;
 
-const floorsize = 5;
+let debug = true;
+
+const floorTileSize = 5;
+const mazeWidthX = 10;
+const mazeWidthY = 10;

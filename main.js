@@ -2,22 +2,56 @@ function init() {
     game = new Game();
     // Display maze
 
-    var sceneEl = document.querySelector('a-scene');
-    var floorTile = document.createElement('a-entity');
-    floorTile.setAttribute('floor', {'position': {x: 0, y: -2, z: 0}, }, 'coordinates', {x: 0, y: 0});
-    floorTile.setAttribute('clickable', true);
-    sceneEl.appendChild(floorTile);
+    drawMaze();
 
     addVRClickListener(()=>{
-        console.log("all the click");
+        if(debug) console.log("Remote clicked, passing along event");
         if(currentClickTarget)
             currentClickTarget.click();
     });
 }
 
+function drawMaze() {
+    let sceneEl = document.querySelector('a-scene');
+    for(var x = 0; x < mazeWidthX; x++) {
+        for(var y = 0; y < mazeWidthY; y++) {
+            let floorTile = document.createElement('a-entity');
+            floorTile.setAttribute('floor', {'coordinates': {x, y}});
+            sceneEl.appendChild(floorTile);
+        }   
+    }
+    
+    //Allow the floor tile data to propogate before updating the maze.
+    Promise.resolve().then(()=>{
+        updateMaze(game.currentLocation.x, game.currentLocation.y);
+    })
+}
+
+function makeMove(x, y) {
+    let currentSpot = game.currentLocation;
+    game.moveTo(x, y);
+    updateMaze(x, y);
+}
+
+function updateMaze(x, y) {
+    let sceneEl = document.querySelector('a-scene');
+    var floorTiles = sceneEl.querySelectorAll('[floor]');
+    for (var i = 0; i < floorTiles.length; i++) {
+        let tileX = floorTiles[i].getAttribute('coordinates').x;
+        let tileY = floorTiles[i].getAttribute('coordinates').y;
+        if(game.isMoveValid(tileX, tileY)) {
+            floorTiles[i].setAttribute('clickable', true);
+        } else {
+            floorTiles[i].setAttribute('clickable', false);
+        }
+        console.log({x: (tileX-x)*floorTileSize, y: -2, z: (tileY-y)*floorTileSize});
+        floorTiles[i].setAttribute(
+            'position', {x: (tileX-x)*floorTileSize, y: -2, z: (tileY-y)*floorTileSize});
+    }
+}
+
 AFRAME.registerComponent('mainframe', {
     init: function () {  
-       console.log('initing');
        init();
     }
 });
@@ -32,14 +66,13 @@ AFRAME.registerComponent('clickable', {
 
 AFRAME.registerComponent('floor', {
     schema: {
-        position: {type: 'vec3', default: {x: 0, y: 0, z: 0}},
-        coordinates: {type:'vec2', default: {x: 0, y: 0}}
+        coordinates: {type:'vec2', default: {x: 0, y: 0}},
+        color: {type: 'color', default: 'grey'}
     },
 
     init: function() {
         var el = this.el;
 
-        el.setAttribute('position', this.data.position);
         el.setAttribute('coordinates', this.data.coordinates);
 
         var moveIndicator = document.createElement('a-entity');
@@ -49,8 +82,8 @@ AFRAME.registerComponent('floor', {
         });
         moveIndicator.setAttribute('geometry', {
             primitive: 'ring',
-            radiusInner: floorsize/4,
-            radiusOuter: floorsize/4+0.2
+            radiusInner: floorTileSize/4,
+            radiusOuter: floorTileSize/4+0.2
         });
         moveIndicator.setAttribute('rotation', {x: -90, y: 0, z: 0});
         moveIndicator.setAttribute('position', {x: 0, y: 0.1, z: 0});
@@ -59,12 +92,12 @@ AFRAME.registerComponent('floor', {
         var floorPlane = document.createElement('a-entity');
             floorPlane.setAttribute('class', 'floorPlane');
             floorPlane.setAttribute('material', {
-            color: 'grey'
+            color: this.data.color
         });
         floorPlane.setAttribute('geometry', {
             primitive: 'plane',
-            height: floorsize,
-            width: floorsize
+            height: floorTileSize,
+            width: floorTileSize
         });
         floorPlane.setAttribute('rotation', {x: -90, y: 0, z: 0});
         
@@ -88,7 +121,7 @@ AFRAME.registerComponent('floor', {
         el.addEventListener('click', function() {
             if(this.getAttribute('clickable')) {
                 let coords = this.getAttribute('coordinates');
-                game.tileClicked(coords.x, coords.y);
+                makeMove(coords.x, coords.y);
             }
         });
     }
