@@ -54,13 +54,10 @@ function drawMaze() {
     }
     
     //Allow the floor tile data to propogate before updating the maze.
-    Promise.resolve().then(()=>{
-        updateMaze(game.currentLocation.x, game.currentLocation.y);
-    });
+    setTimeout(function(){ updateMaze(game.currentLocation.x, game.currentLocation.y); }, 500);
 }
 
 function makeMove(x, y) {
-    let currentSpot = game.currentLocation;
     game.moveTo(x, y);
     updateMaze(x, y);
 
@@ -71,9 +68,7 @@ function makeMove(x, y) {
 
         drawMaze();
         //Allow the floor tile data to propogate before updating the maze.
-        Promise.resolve().then(()=>{
-            updateMaze(game.currentLocation.x, game.currentLocation.y);
-        });
+        setTimeout(function(){ updateMaze(game.currentLocation.x, game.currentLocation.y); }, 500);
     }
 }
 
